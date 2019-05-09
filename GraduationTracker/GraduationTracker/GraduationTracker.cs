@@ -24,9 +24,9 @@ namespace Graduation.BAL
         {
             try
             {
-                var average = this.CalculateAverage(student, diploma);
+                int average = this.CalculateAverage(student, diploma);
 
-                var hasGraduated = this.ProcessAverage(average);
+                Tuple<bool, STANDING> hasGraduated = this.ProcessAverage(average);
 
                 return hasGraduated;
             }
@@ -46,20 +46,22 @@ namespace Graduation.BAL
         {
             try
             {
-                var credits = 0;
-                var average = 0;
-                for (int i = 0; i < diploma.Requirements.Length; i++)
+                int credits = 0;
+                int average = 0;
+
+                foreach (int i in diploma.Requirements)
                 {
                     for (int j = 0; j < student.Courses.Length; j++)
                     {
-                        var requirement = Repository.GetRequirement(diploma.Requirements[i]);
+                        var requirement = Repository.GetRequirement(i);
 
                         for (int k = 0; k < requirement.Courses.Length; k++)
                         {
                             if (requirement.Courses[k] == student.Courses[j].Id)
                             {
-                                average += student.Courses[j].Mark;
-                                if (student.Courses[j].Mark > requirement.MinimumMark)
+                                int studMark = student.Courses[j].Mark;
+                                average += studMark;
+                                if (studMark > requirement.MinimumMark)
                                 {
                                     credits += requirement.Credits;
                                 }
@@ -87,16 +89,16 @@ namespace Graduation.BAL
 
             switch (standing)
             {
-                case STANDING.Remedial:
-                    return new Tuple<bool, STANDING>(false, standing);
+
                 case STANDING.Average:
-                    return new Tuple<bool, STANDING>(true, standing);
                 case STANDING.SumaCumLaude:
-                    return new Tuple<bool, STANDING>(true, standing);
                 case STANDING.MagnaCumLaude:
                     return new Tuple<bool, STANDING>(true, standing);
+
+                case STANDING.Remedial:
                 default:
                     return new Tuple<bool, STANDING>(false, standing);
+
             }
         }
 
